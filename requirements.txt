@@ -1,0 +1,21 @@
+# Dependências da aplicação Dash - Pesquisa MJ
+
+# Framework principal
+dash
+dash-bootstrap-components
+
+# Processamento de dados
+pandas
+numpy
+
+# Requisições HTTP
+requests
+
+# Variáveis de ambiente
+python-dotenv
+
+# Utilitários
+plotly
+
+# Validação de dados
+jsonschema
