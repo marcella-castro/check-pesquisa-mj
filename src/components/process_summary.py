@@ -41,7 +41,10 @@ def create_process_summary(processo_data: Dict, all_data: Dict[str, pd.DataFrame
         create_category_summary(processo_data.get('categorias', {})),
         
         # Tabela com preview dos dados por categoria
-        create_category_data_preview(all_data)
+        create_category_data_preview(all_data),
+        
+        # Observações do Bolsista
+        create_observacoes_bolsista(all_data)
         
     ], className="process-summary")
 
@@ -179,7 +182,8 @@ def create_category_data_preview(all_data: Dict[str, pd.DataFrame]):
                 'P0Q2. Número do Processo:',
                 'P0Q3. Estado em que ocorreu o crime (Formato: Unidade Federativa em letra maiúscula como SP, MG)',
                 'P0Q14. Número de réus no processo:',
-                'P0Q014. Número de réus que tiveram decisão com trânsito em julgado neste processo'
+                'P0Q014. Número de réus que tiveram decisão com trânsito em julgado neste processo', 
+                'P0Q18. Qual o número de vítimas no processo?'
             ]
         elif categoria == 'vitima':
             preview_cols = [
@@ -259,6 +263,116 @@ def create_category_data_preview(all_data: Dict[str, pd.DataFrame]):
         ])
     
     return html.Div()
+
+def create_observacoes_bolsista(all_data: Dict[str, pd.DataFrame]):
+    """Cria seção com observações do bolsista do formulário de processo"""
+    if not all_data or 'processo' not in all_data or all_data['processo'].empty:
+        return html.Div()
+    
+    df_processo = all_data['processo']
+    
+    # Colunas que queremos mostrar
+    colunas_observacoes = [
+        'id',
+        'P0Q1. Número de controle (dado pela equipe)',
+        'P9Q3. Este processo, por qualquer motivo, se destacou/diferenciou das demais?( *humilhação, ofensa, julgamento moral, diligência na produção de provas, relato de violência detalhado etc_ .) Se sim, por que este caso se destacou/diferenciou das demais?'
+    ]
+    
+    # Filtrar apenas colunas que existem no DataFrame
+    colunas_existentes = [col for col in colunas_observacoes if col in df_processo.columns]
+    
+    if not colunas_existentes:
+        return html.Div()
+    
+    # Criar DataFrame com as colunas selecionadas
+    df_observacoes = df_processo[colunas_existentes].copy()
+    
+    # Renomear colunas para display mais limpo
+    rename_map = {
+        'P0Q1. Número de controle (dado pela equipe)': 'Nº Controle',
+        'P9Q3. Este processo, por qualquer motivo, se destacou/diferenciou das demais?( *humilhação, ofensa, julgamento moral, diligência na produção de provas, relato de violência detalhado etc_ .) Se sim, por que este caso se destacou/diferenciou das demais?': 'Observações do Bolsista'
+    }
+    
+    df_observacoes = df_observacoes.rename(columns=rename_map)
+    
+    # Filtrar apenas linhas onde há observações (não vazias)
+    col_observacoes = 'Observações do Bolsista'
+    if col_observacoes in df_observacoes.columns:
+        # Remover linhas onde observações estão vazias ou são apenas espaços
+        mask = df_observacoes[col_observacoes].notna() & (df_observacoes[col_observacoes].astype(str).str.strip() != '')
+        df_observacoes = df_observacoes[mask]
+    
+    # Se não há observações, não mostrar a seção
+    if df_observacoes.empty:
+        return html.Div()
+    
+    return html.Div([
+        html.Hr(style={"margin": "30px 0", "borderColor": "#dee2e6"}),
+        html.H4("💭 Observações do Bolsista", style={"marginBottom": "15px", "color": "#495057"}),
+        html.P("Casos que se destacaram ou diferenciaram segundo os bolsistas:", 
+               style={"marginBottom": "15px", "color": "#6c757d", "fontStyle": "italic"}),
+        dash_table.DataTable(
+            data=df_observacoes.to_dict('records'),
+            columns=[col for col in [
+                {"name": "ID", "id": "id", "type": "text"} if "id" in df_observacoes.columns else None,
+                {"name": "Nº Controle", "id": "Nº Controle", "type": "text"} if "Nº Controle" in df_observacoes.columns else None,
+                {"name": "Observações", "id": "Observações do Bolsista", "type": "text"} if "Observações do Bolsista" in df_observacoes.columns else None
+            ] if col is not None],
+            style_cell={
+                'textAlign': 'left',
+                'padding': '12px',
+                'fontFamily': 'Arial, sans-serif',
+                'fontSize': '12px',
+                'whiteSpace': 'normal',
+                'height': 'auto',
+                'lineHeight': '1.4'
+            },
+            style_cell_conditional=[
+                {
+                    'if': {'column_id': 'id'},
+                    'width': '80px',
+                    'textAlign': 'center'
+                },
+                {
+                    'if': {'column_id': 'Nº Controle'},
+                    'width': '120px',
+                    'textAlign': 'center'
+                },
+                {
+                    'if': {'column_id': 'Observações do Bolsista'},
+                    'width': '70%',
+                    'maxWidth': '500px'
+                }
+            ],
+            style_header={
+                'backgroundColor': '#f8f9fa',
+                'fontWeight': 'bold',
+                'border': '1px solid #dee2e6',
+                'textAlign': 'center'
+            },
+            style_data={
+                'backgroundColor': 'white',
+                'border': '1px solid #dee2e6',
+                'whiteSpace': 'normal',
+                'height': 'auto'
+            },
+            style_table={
+                'overflowX': 'auto',
+                'marginBottom': '20px'
+            },
+            tooltip_data=[
+                {
+                    column: {'value': str(row[column]), 'type': 'markdown'}
+                    for column in df_observacoes.columns
+                } for row in df_observacoes.to_dict('records')
+            ],
+            tooltip_duration=None,
+            css=[{
+                'selector': '.dash-table-tooltip',
+                'rule': 'background-color: #f8f9fa; font-family: Arial; border: 1px solid #dee2e6; max-width: 400px;'
+            }]
+        )
+    ], style={"marginTop": "25px"})
 
 def create_no_data_found():
     """Cria componente quando nenhum dado é encontrado"""

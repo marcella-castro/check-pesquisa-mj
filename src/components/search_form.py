@@ -14,8 +14,10 @@ def create_search_form():
     return html.Div([
         html.Div([
             html.H2("🔍 Verificador de erros", className="header-title"),
-            html.P("Digite o número do processo (padrão CNJ) para verificar erros nas respostas dos formulários", 
-                   className="header-subtitle")
+            html.P("Digite o número do processo (apenas números) para verificar erros nas respostas dos formulários", 
+                   className="header-subtitle"),
+            html.P("💡 A formatação CNJ será aplicada automaticamente conforme você digita", 
+                   style={"fontSize": "14px", "color": "#28a745", "marginTop": "5px", "fontStyle": "italic"})
         ], className="header-section"),
         
         html.Div([
@@ -24,7 +26,7 @@ def create_search_form():
                 dcc.Input(
                     id="input-processo-numero",
                     type="text",
-                    placeholder="Ex: 1234567-89.2023.1.23.4567",
+                    placeholder="Digite apenas números - Ex: 12345678901234567890",
                     className="form-input",
                     style={"width": "100%", "padding": "12px", "fontSize": "16px"}
                 )

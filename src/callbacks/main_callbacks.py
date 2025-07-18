@@ -8,6 +8,7 @@ from data.data_processor import DataProcessor
 from validation.conjunto_validator import ConjuntoValidator
 from components.process_summary import create_process_summary
 from components.error_report import create_error_report
+from utils.formatters import formatar_cnj
 from datetime import datetime
 
 def register_callbacks(app):
@@ -112,6 +113,37 @@ def register_callbacks(app):
             
         except Exception as e:
             return create_data_status_error(str(e))
+    
+    @app.callback(
+        Output('input-processo-numero', 'value'),
+        [Input('input-processo-numero', 'value')],
+        prevent_initial_call=True
+    )
+    def format_cnj_input(value):
+        """
+        Callback para formatar automaticamente o número CNJ conforme o usuário digita
+        
+        Args:
+            value: Valor atual do input
+            
+        Returns:
+            Valor formatado segundo o padrão CNJ
+        """
+        if not value:
+            return value
+        
+        try:
+            # Aplicar formatação CNJ
+            formatted_value = formatar_cnj(value)
+            
+            # Só retorna se o valor formatado for diferente do original
+            # Isso evita loops infinitos
+            if formatted_value != value:
+                return formatted_value
+            return value
+        except Exception:
+            # Se der erro na formatação, retorna o valor original
+            return value
 
 def create_search_results(processo_summary, all_data, erros, validation_summary):
     """

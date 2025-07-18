@@ -3,8 +3,54 @@ Formatadores e utilitários para exibição de dados
 """
 
 import pandas as pd
+import re
 from typing import Any, Dict, List
 from datetime import datetime
+
+def formatar_cnj(numero):
+    """
+    Formata um número para o padrão CNJ
+    
+    Args:
+        numero: Número a ser formatado (string ou int)
+        
+    Returns:
+        Número formatado no padrão CNJ: 0000000-00.0000.0.00.0000
+    """
+    if not numero:
+        return numero
+        
+    # Remove quaisquer caracteres não numéricos
+    num = re.sub(r'\D', '', str(numero))
+    
+    # Se tem menos de 7 dígitos, não formata ainda
+    if len(num) < 7:
+        return num
+    
+    # Se o número tiver mais de 20 dígitos, remove o último dígito até ficar com 20
+    while len(num) > 20:
+        num = num[:-1]
+
+    # Se não tiver exatamente 20 dígitos após o ajuste, formata parcialmente
+    if len(num) < 20:
+        # Formatação parcial baseada no que está disponível
+        if len(num) >= 7:
+            formatted = f"{num[:7]}"
+            if len(num) > 7:
+                formatted += f"-{num[7:min(9, len(num))]}"
+            if len(num) > 9:
+                formatted += f".{num[9:min(13, len(num))]}"
+            if len(num) > 13:
+                formatted += f".{num[13:min(14, len(num))]}"
+            if len(num) > 14:
+                formatted += f".{num[14:min(16, len(num))]}"
+            if len(num) > 16:
+                formatted += f".{num[16:min(20, len(num))]}"
+            return formatted
+        return num
+
+    # Formatar: 0000000-00.0000.0.00.0000
+    return f"{num[:7]}-{num[7:9]}.{num[9:13]}.{num[13]}.{num[14:16]}.{num[16:20]}"
 
 def format_date(date_value: Any) -> str:
     """
