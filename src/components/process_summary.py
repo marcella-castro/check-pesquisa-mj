@@ -227,7 +227,7 @@ def create_category_data_preview(all_data: Dict[str, pd.DataFrame]):
         preview_cols = [col for col in preview_cols if col in df.columns]
         
         if preview_cols:
-            df_preview = df[preview_cols].head(3)
+            df_preview = df[preview_cols].head(12)
             
             previews.append(html.Div([
                 html.H5(f"Formulário de {categoria.title()}", style={"marginBottom": "10px"}),
@@ -309,7 +309,7 @@ def create_observacoes_bolsista(all_data: Dict[str, pd.DataFrame]):
     return html.Div([
         html.Hr(style={"margin": "30px 0", "borderColor": "#dee2e6"}),
         html.H4("💭 Observações do Bolsista", style={"marginBottom": "15px", "color": "#495057"}),
-        html.P("Casos que se destacaram ou diferenciaram segundo os bolsistas:", 
+        html.P("Coisas que se destacaram ou diferenciaram segundo os bolsistas, incluindo comentários de erro:", 
                style={"marginBottom": "15px", "color": "#6c757d", "fontStyle": "italic"}),
         dash_table.DataTable(
             data=df_observacoes.to_dict('records'),
