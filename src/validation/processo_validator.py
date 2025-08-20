@@ -513,28 +513,22 @@ class ProcessoValidator:
         
         # Definir os marcos processuais em ordem cronológica esperada (nome amigável: nome da coluna)
         marcos_processuais = {
-            'Data do Crime': 'P1Q1. Qual a data do crime?',
-            'Data do Flagrante': 'P1Q2. Data da prisão em flagrante:',
-            'Data da Decisão do Flagrante':'P2Q5. Qual a data da decisão/despacho do juiz a respeito do flagrante (na audiência de custódia ou nos autos)?',
-            'Data da audiência de custódia': 'P2Q1. Data da audiência de custódia:',
-            'Data abertura IP': 'P3Q1. Data da abertura do Inquérito Policial:',
-            'Data Relatório Final IP': 'P3Q28. Data do relatório final do Inquérito Policial:',
-            'Data oferecimento da Denúncia': 'P4Q7. Data do oferecimento da denúncia:',
-            'Data decisão imediatamente após Denúncia': 'P4Q14. Qual a data da decisão/despacho do juiz imediatamente após a denúncia?',
-            'Data do Recebimento da Denúncia': 'P6Q0. Qual a data em que a denúncia foi recebida?',
-            'Data da RA': 'P5Q5. Qual a data da defesa prévia/resposta à acusação?',
-            'Data 1a AIJ': 'P6Q1. Data da primeira audiência de instrução realizada:',
-            'Data última AIJ': 'P6Q3. Se sim, qual a data da última audiência de instrução realizada?', 
-            'Data das alegações finais da acusação': 'P6Q8. Data das alegações finais da acusação:',
-            'Data das alegações finais da defesa': 'P6Q13. Data das alegações finais da defesa:',
-            'Data decisão 1a fase do Juri': 'P7Q2. Data da decisão que finaliza a primeira fase do Júri:',
-            'Data nova decisão da 1a Fase': 'P7Q31. Data da nova decisão de primeira fase',
-            'Data agendamento audiência Juri': 'P8Q0. Primeira data de agendamento da audiência de júri:',
-            'Data realização audiência Júri': 'P8Q4. Data em que a audiência de júri foi realizada:',
-            'Data prolação sentença de júri': 'P8Q20. Data em que a sentença de júri foi prolatada:',
-            'Data nova decisão de 2a fase': 'P8Q57. Qual a data da nova decisão de segunda fase?',
-            'Data do trânsito em julgado': 'P9Q1. Data do trânsito em julgado da sentença:',
-            'Data do arquivamento definitivo': 'P9Q2. Data do arquivamento definitivo do processo:'
+        'Data do Crime': 'P1Q1. Qual a data do crime?',
+        'Data abertura IP': 'P3Q1. Data da abertura do Inquérito Policial:',
+        'Data Relatório Final IP': 'P3Q28. Data do relatório final do Inquérito Policial:',
+        'Data oferecimento da Denúncia': 'P4Q7. Data do oferecimento da denúncia:',
+        'Data decisão imediatamente após Denúncia': 'P4Q14. Qual a data da decisão/despacho do juiz imediatamente após a denúncia?',
+        'Data do Recebimento da Denúncia': 'P6Q0. Qual a data em que a denúncia foi recebida?',
+        'Data 1a AIJ': 'P6Q1. Data da primeira audiência de instrução realizada:',
+        'Data última AIJ': 'P6Q3. Se sim, qual a data da última audiência de instrução realizada?',
+        'Data decisão 1a fase do Juri': 'P7Q2. Data da decisão que finaliza a primeira fase do Júri:',
+        'Data nova decisão da 1a Fase': 'P7Q31. Data da nova decisão de primeira fase',
+        'Data agendamento audiência Juri': 'P8Q0. Primeira data de agendamento da audiência de júri:',
+        'Data realização audiência Júri': 'P8Q4. Data em que a audiência de júri foi realizada:',
+        'Data prolação sentença de júri': 'P8Q20. Data em que a sentença de júri foi prolatada:',
+        'Data nova decisão de 2a fase': 'P8Q57. Qual a data da nova decisão de segunda fase?',
+        'Data do trânsito em julgado': 'P9Q1. Data do trânsito em julgado da sentença:',
+        'Data do arquivamento definitivo': 'P9Q2. Data do arquivamento definitivo do processo:'
         }
         
         # Converter todas as datas para datetime
