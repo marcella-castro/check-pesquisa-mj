@@ -57,11 +57,12 @@ def create_main_layout():
         }),
         
         
-        # Interval para atualizar status
+        # Interval para atualizar status (desabilitado para evitar loading infinito)
         dcc.Interval(
             id='status-interval',
-            interval=2000,  # Atualiza a cada 2 segundos
-            n_intervals=0
+            interval=10000,  # Aumentado para 10 segundos
+            n_intervals=0,
+            disabled=True  # Desabilitado inicialmente
         )
         
     ], style={

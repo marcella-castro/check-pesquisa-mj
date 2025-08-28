@@ -2,7 +2,7 @@
 Callbacks principais da aplicação
 """
 
-from dash import Input, Output, State, html, callback_context
+from dash import Input, Output, State, html, callback_context, no_update
 import pandas as pd
 from data.data_processor import DataProcessor
 from validation.conjunto_validator import ConjuntoValidator
@@ -10,6 +10,7 @@ from components.process_summary import create_process_summary
 from components.error_report import create_error_report
 from utils.formatters import formatar_cnj
 from datetime import datetime
+import re
 
 def register_callbacks(app):
     """
@@ -23,7 +24,8 @@ def register_callbacks(app):
         [Output('search-results', 'children'),
          Output('loading-indicator', 'style')],
         [Input('btn-buscar', 'n_clicks')],
-        [State('input-processo-numero', 'value')]
+        [State('input-processo-numero', 'value')],
+        prevent_initial_call=True
     )
     def handle_search(n_clicks, processo_numero):
         """
@@ -36,18 +38,15 @@ def register_callbacks(app):
         Returns:
             Tuple com resultados da busca e estilo do loading
         """
-        # Se não houve clique, retornar estado inicial
-        if n_clicks == 0:
-            return create_initial_state(), {"display": "none"}
+        # Se não houve clique, não fazer nada
+        if not n_clicks or n_clicks == 0:
+            return no_update, {"display": "none"}
         
         # Validar entrada
         if not processo_numero or not processo_numero.strip():
             return create_error_message("Por favor, digite um número de processo válido."), {"display": "none"}
         
         try:
-            # Mostrar loading
-            loading_style = {"display": "block"}
-            
             # Processar dados
             data_processor = DataProcessor()
             all_data = data_processor.get_processo_data(processo_numero.strip())
@@ -79,33 +78,20 @@ def register_callbacks(app):
             return create_error_message(error_msg), {"display": "none"}
     
     @app.callback(
-        Output('loading-indicator', 'style', allow_duplicate=True),
-        [Input('btn-buscar', 'n_clicks')],
-        prevent_initial_call=True
-    )
-    def show_loading(n_clicks):
-        """
-        Callback para mostrar indicador de loading
-        """
-        if n_clicks > 0:
-            return {"display": "block"}
-        return {"display": "none"}
-    
-    @app.callback(
         Output('data-status', 'children'),
-        [Input('status-interval', 'n_intervals')]
+        [Input('status-interval', 'n_intervals')],
+        prevent_initial_call=True
     )
     def update_data_status(n_intervals):
         """
         Callback para atualizar o status do carregamento dos dados
-        
-        Args:
-            n_intervals: Número de intervalos passados
-            
-        Returns:
-            Componente com status dos dados
         """
+        # Só executar algumas vezes para evitar sobrecarga
+        if n_intervals > 10:  # Parar após 10 execuções
+            return no_update
+            
         try:
+            from utils.data_service import data_service
             data_processor = DataProcessor()
             status = data_processor.get_cache_status()
             
@@ -130,20 +116,31 @@ def register_callbacks(app):
             Valor formatado segundo o padrão CNJ
         """
         if not value:
-            return value
+            return no_update
+        
+        # Converter para string e remover espaços
+        value_str = str(value).strip()
+        
+        # Se está vazio, não fazer nada
+        if not value_str:
+            return no_update
+        
+        # Se já está formatado (contém hífens e pontos), não reformatar
+        if '-' in value_str and '.' in value_str:
+            return no_update
         
         try:
-            # Aplicar formatação CNJ
-            formatted_value = formatar_cnj(value)
+            # Aplicar formatação CNJ apenas se necessário
+            formatted_value = formatar_cnj(value_str)
             
             # Só retorna se o valor formatado for diferente do original
-            # Isso evita loops infinitos
-            if formatted_value != value:
+            if formatted_value != value_str:
                 return formatted_value
-            return value
+            
+            return no_update
         except Exception:
-            # Se der erro na formatação, retorna o valor original
-            return value
+            # Se der erro na formatação, não atualizar
+            return no_update
 
 def create_search_results(processo_summary, all_data, erros, validation_summary):
     """

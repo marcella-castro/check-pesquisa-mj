@@ -28,7 +28,8 @@ def create_search_form():
                     type="text",
                     placeholder="Digite apenas números - Ex: 12345678901234567890",
                     className="form-input",
-                    style={"width": "100%", "padding": "12px", "fontSize": "16px"}
+                    style={"width": "100%", "padding": "12px", "fontSize": "16px"},
+                    debounce=True  # Evita execuções excessivas do callback
                 )
             ], className="input-group"),
             
