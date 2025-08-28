@@ -1,0 +1,38 @@
+name: check-pesquisa-mj
+services:
+- name: web
+  source_dir: /
+  github:
+    repo: marcella-castro/check-pesquisa-mj
+    branch: main
+    deploy_on_push: true
+  run_command: python run.py
+  environment_slug: python
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  envs:
+  - key: PORT
+    value: "8050"
+    type: UNENCRYPTED
+  - key: HOST
+    value: "0.0.0.0"
+    type: UNENCRYPTED
+  - key: DEBUG
+    value: "False"
+    type: UNENCRYPTED
+  - key: LIME_API_URL
+    value: "https://amandalagreca.limesurvey.net/admin/remotecontrol"
+    type: UNENCRYPTED
+  - key: LIME_USERNAME
+    value: "amandalagreca"
+    type: UNENCRYPTED
+  - key: LIME_PASSWORD
+    value: "Amanda00*"
+    type: SECRET
+  - key: CACHE_TIMEOUT
+    value: "300"
+    type: UNENCRYPTED
+  - key: SECRET_KEY
+    value: "pesquisa-mj-secret-key-2025"
+    type: SECRET
+  http_port: 8050

@@ -39,15 +39,24 @@ if __name__ == "__main__":
         # Importar e executar a aplicação
         from app import app
         
+        # Verificar se está rodando em ambiente de produção
+        port = int(os.environ.get('PORT', 8050))
+        host = os.environ.get('HOST', '0.0.0.0')
+        debug = os.environ.get('DEBUG', 'True').lower() == 'true'
+        
         print("🚀 Iniciando aplicação...")
-        print("   Acesse: http://localhost:8050")
+        print(f"   Host: {host}")
+        print(f"   Porta: {port}")
+        print(f"   Debug: {debug}")
         print("   Pressione Ctrl+C para parar")
         print()
         
-        app.run(debug=True, host='0.0.0.0', port=8050)
+        app.run(debug=debug, host=host, port=port)
         
     except KeyboardInterrupt:
         print("\n👋 Aplicação encerrada pelo usuário")
     except Exception as e:
         print(f"❌ Erro ao executar aplicação: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)

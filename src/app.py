@@ -8,6 +8,21 @@ from layouts.main_layout import create_main_layout
 from callbacks.main_callbacks import register_callbacks
 from utils.data_service import data_service
 
+# Verificar configurações antes de iniciar
+try:
+    from config.settings import Config
+    missing_configs = Config.validate_config()
+    if missing_configs:
+        print("\n⚠️  ATENÇÃO: Configurações ausentes!")
+        print(f"   Variáveis de ambiente não configuradas: {', '.join(missing_configs)}")
+        print("   Configure estas variáveis no seu provedor de deploy ou arquivo .env")
+        print("   A aplicação funcionará em modo limitado.\n")
+    config_available = Config.is_configured()
+except Exception as e:
+    print(f"⚠️  Erro ao carregar configurações: {e}")
+    print("   A aplicação funcionará em modo limitado.\n")
+    config_available = False
+
 # Inicializar a aplicação Dash
 app = dash.Dash(
     __name__,
@@ -22,7 +37,7 @@ app = dash.Dash(
 app.title = "Verificador de Pesquisa MJ"
 
 # Iniciar carregamento dos dados em background apenas se configurado
-if Config.is_configured():
+if config_available:
     print("🚀 Iniciando carregamento dos dados dos formulários...")
     # Comentado temporariamente para evitar loading infinito no deploy
     # data_service.start_background_loading()
