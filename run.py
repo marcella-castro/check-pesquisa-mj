@@ -42,7 +42,8 @@ if __name__ == "__main__":
         # Verificar se está rodando em ambiente de produção
         port = int(os.environ.get('PORT', 8050))
         host = os.environ.get('HOST', '0.0.0.0')
-        debug = os.environ.get('DEBUG', 'True').lower() == 'true'
+        # FORÇAR DEBUG=FALSE EM PRODUÇÃO
+        debug = False if os.environ.get('PORT') else True  # Se PORT está definida, é produção
         
         print("🚀 Iniciando aplicação...")
         print(f"   Host: {host}")

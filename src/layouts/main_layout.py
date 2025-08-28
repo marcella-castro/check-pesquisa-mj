@@ -39,8 +39,8 @@ def create_main_layout():
             "borderBottom": "3px solid #3498db"
         }),
         
-        # Status de carregamento dos dados
-        html.Div(id="data-status", style={"marginBottom": "20px"}),
+        # Status de carregamento dos dados (removido temporariamente)
+        # html.Div(id="data-status", style={"marginBottom": "20px"}),
         
         # Container principal
         html.Div([
@@ -57,13 +57,13 @@ def create_main_layout():
         }),
         
         
-        # Interval para atualizar status (desabilitado para evitar loading infinito)
-        dcc.Interval(
-            id='status-interval',
-            interval=10000,  # Aumentado para 10 segundos
-            n_intervals=0,
-            disabled=True  # Desabilitado inicialmente
-        )
+        # Interval removido para evitar loading infinito
+        # dcc.Interval(
+        #     id='status-interval',
+        #     interval=10000,
+        #     n_intervals=0,
+        #     disabled=True
+        # )
         
     ], style={
         "fontFamily": "Arial, sans-serif",

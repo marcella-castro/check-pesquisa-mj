@@ -77,28 +77,14 @@ def register_callbacks(app):
             error_msg = f"Erro ao processar dados: {str(e)}"
             return create_error_message(error_msg), {"display": "none"}
     
-    @app.callback(
-        Output('data-status', 'children'),
-        [Input('status-interval', 'n_intervals')],
-        prevent_initial_call=True
-    )
-    def update_data_status(n_intervals):
-        """
-        Callback para atualizar o status do carregamento dos dados
-        """
-        # Só executar algumas vezes para evitar sobrecarga
-        if n_intervals > 10:  # Parar após 10 execuções
-            return no_update
-            
-        try:
-            from utils.data_service import data_service
-            data_processor = DataProcessor()
-            status = data_processor.get_cache_status()
-            
-            return create_data_status_component(status)
-            
-        except Exception as e:
-            return create_data_status_error(str(e))
+    # Callback de status removido para evitar problemas de deploy
+    # @app.callback(
+    #     Output('data-status', 'children'),
+    #     [Input('status-interval', 'n_intervals')],
+    #     prevent_initial_call=True
+    # )
+    # def update_data_status(n_intervals):
+    #     ...
     
     @app.callback(
         Output('input-processo-numero', 'value'),
