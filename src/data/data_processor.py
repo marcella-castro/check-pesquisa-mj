@@ -26,20 +26,48 @@ class DataProcessor:
             # Primeiro tentar usar dados em cache
             filtered_data = data_service.filter_by_processo(processo_numero)
             
-            # Se não há dados em cache, carregar diretamente
-            if not filtered_data:
-                print("📥 Carregando dados diretamente da API...")
-                from data.lime_api import LimeSurveyAPI
-                from config.settings import Config
-                api = LimeSurveyAPI()
+            # Se não há dados em cache OU cache está loading, aguardar um pouco
+            if not filtered_data and data_service.cache.is_loading:
+                print("⏳ Aguardando carregamento dos dados...")
+                import time
+                for i in range(10):  # Aguarda até 10 segundos
+                    time.sleep(1)
+                    filtered_data = data_service.filter_by_processo(processo_numero)
+                    if filtered_data:
+                        break
+            
+            # Se ainda não há dados, verificar se precisa forçar carregamento
+            if not filtered_data and not data_service.cache.is_loading:
+                cached_status = data_service.get_cached_data()
                 
-                if Config.is_configured():
-                    all_data = api.get_all_survey_data(processo_numero)
-                    if all_data:
-                        filtered_data = all_data
-                else:
-                    print("⚠️  API não configurada - dados não disponíveis")
-                    return {}
+                # Se não há dados válidos em cache, iniciar carregamento
+                if not cached_status['is_valid'] and not cached_status['data']:
+                    print("📥 Cache vazio - iniciando carregamento...")
+                    data_service.start_background_loading()
+                    
+                    # Aguardar carregamento por até 30 segundos
+                    import time
+                    for i in range(30):
+                        time.sleep(1)
+                        filtered_data = data_service.filter_by_processo(processo_numero)
+                        if filtered_data:
+                            break
+                        print(f"⏳ Carregando... ({i+1}/30s)")
+                
+                # Como último recurso, carregar diretamente da API (modo antigo)
+                if not filtered_data:
+                    print("📥 Carregando dados diretamente da API (fallback)...")
+                    from data.lime_api import LimeSurveyAPI
+                    from config.settings import Config
+                    api = LimeSurveyAPI()
+                    
+                    if Config.is_configured():
+                        all_data = api.get_all_survey_data(processo_numero)
+                        if all_data:
+                            filtered_data = all_data
+                    else:
+                        print("⚠️  API não configurada - dados não disponíveis")
+                        return {}
             
             if not filtered_data:
                 return {}

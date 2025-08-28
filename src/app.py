@@ -37,8 +37,11 @@ app = dash.Dash(
 app.title = "Verificador de Pesquisa MJ"
 
 # Iniciar carregamento dos dados em background apenas se configurado
-# DESABILITADO TEMPORARIAMENTE PARA DEPLOY ESTÁVEL
-print("⏸️  Carregamento de dados em background desabilitado para deploy estável")
+if config_available:
+    print("🚀 Iniciando carregamento de dados em background...")
+    data_service.start_background_loading()
+else:
+    print("⚠️  API não configurada - dados não serão carregados automaticamente")
 
 # Definir o layout principal
 app.layout = create_main_layout()
