@@ -94,8 +94,8 @@ def register_callbacks(app):
     # )
     # def format_cnj_input(value):
     #     ...formatação CNJ...
-    
-    @app.callback(def create_search_results(processo_summary, all_data, erros, validation_summary):
+
+def create_search_results(processo_summary, all_data, erros, validation_summary):
     """
     Cria os componentes de resultado da busca
     
