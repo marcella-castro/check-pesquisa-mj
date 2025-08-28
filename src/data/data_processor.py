@@ -22,19 +22,38 @@ class DataProcessor:
         Returns:
             Dicionário com DataFrames por categoria (processo, vitima, reu, provas)
         """
-        # Usar o serviço de dados para filtrar pelos dados em cache
-        filtered_data = data_service.filter_by_processo(processo_numero)
-        
-        if not filtered_data:
+        try:
+            # Primeiro tentar usar dados em cache
+            filtered_data = data_service.filter_by_processo(processo_numero)
+            
+            # Se não há dados em cache, carregar diretamente
+            if not filtered_data:
+                print("📥 Carregando dados diretamente da API...")
+                from data.lime_api import LimeSurveyAPI
+                api = LimeSurveyAPI()
+                
+                if api.configured:
+                    all_data = api.get_all_survey_data(processo_numero)
+                    if all_data:
+                        filtered_data = all_data
+                else:
+                    print("⚠️  API não configurada - dados não disponíveis")
+                    return {}
+            
+            if not filtered_data:
+                return {}
+            
+            # Limpar e processar os dados de cada categoria
+            cleaned_data = {}
+            for categoria, df in filtered_data.items():
+                if not df.empty:
+                    cleaned_data[categoria] = self.clean_data(df)
+            
+            return cleaned_data
+            
+        except Exception as e:
+            print(f"❌ Erro ao obter dados do processo: {e}")
             return {}
-        
-        # Limpar e processar os dados de cada categoria
-        cleaned_data = {}
-        for categoria, df in filtered_data.items():
-            if not df.empty:
-                cleaned_data[categoria] = self.clean_data(df)
-        
-        return cleaned_data
     
     def get_cache_status(self) -> Dict:
         """

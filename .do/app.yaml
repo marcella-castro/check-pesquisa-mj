@@ -6,7 +6,7 @@ services:
     repo: marcella-castro/check-pesquisa-mj
     branch: main
     deploy_on_push: true
-  run_command: python deploy_emergency.py
+  run_command: python deploy_stable.py
   environment_slug: python
   instance_count: 1
   instance_size_slug: basic-xxs

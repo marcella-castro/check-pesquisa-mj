@@ -86,49 +86,16 @@ def register_callbacks(app):
     # def update_data_status(n_intervals):
     #     ...
     
-    @app.callback(
-        Output('input-processo-numero', 'value'),
-        [Input('input-processo-numero', 'value')],
-        prevent_initial_call=True
-    )
-    def format_cnj_input(value):
-        """
-        Callback para formatar automaticamente o número CNJ conforme o usuário digita
-        
-        Args:
-            value: Valor atual do input
-            
-        Returns:
-            Valor formatado segundo o padrão CNJ
-        """
-        if not value:
-            return no_update
-        
-        # Converter para string e remover espaços
-        value_str = str(value).strip()
-        
-        # Se está vazio, não fazer nada
-        if not value_str:
-            return no_update
-        
-        # Se já está formatado (contém hífens e pontos), não reformatar
-        if '-' in value_str and '.' in value_str:
-            return no_update
-        
-        try:
-            # Aplicar formatação CNJ apenas se necessário
-            formatted_value = formatar_cnj(value_str)
-            
-            # Só retorna se o valor formatado for diferente do original
-            if formatted_value != value_str:
-                return formatted_value
-            
-            return no_update
-        except Exception:
-            # Se der erro na formatação, não atualizar
-            return no_update
-
-def create_search_results(processo_summary, all_data, erros, validation_summary):
+    # Callback de formatação CNJ temporariamente desabilitado para estabilidade
+    # @app.callback(
+    #     Output('input-processo-numero', 'value'),
+    #     [Input('input-processo-numero', 'value')],
+    #     prevent_initial_call=True
+    # )
+    # def format_cnj_input(value):
+    #     ...formatação CNJ...
+    
+    @app.callback(def create_search_results(processo_summary, all_data, erros, validation_summary):
     """
     Cria os componentes de resultado da busca
     
@@ -233,19 +200,41 @@ def create_error_message(message):
 def create_no_data_message(processo_numero):
     """Cria mensagem quando não encontra dados"""
     return html.Div([
-        html.I(className="fas fa-folder-open", 
-               style={"fontSize": "48px", "color": "#ffc107"}),
-        html.H4("Nenhum dado encontrado", style={"color": "#856404", "marginTop": "15px"}),
+        html.I(className="fas fa-search", 
+               style={"fontSize": "48px", "color": "#17a2b8"}),
+        html.H4("Processo não encontrado", style={"color": "#0c5460", "marginTop": "15px"}),
         html.P(f"Não foram encontradas respostas para o processo: {processo_numero}", 
-               style={"color": "#666"}),
-        html.P("Verifique se o número está correto ou se existem dados cadastrados para este processo.", 
-               style={"color": "#999", "fontSize": "14px"})
+               style={"color": "#666", "marginBottom": "15px"}),
+        html.Div([
+            html.P("📋 Verificações possíveis:", style={"fontWeight": "bold", "marginBottom": "10px"}),
+            html.Ul([
+                html.Li("Confirme se o número está correto"),
+                html.Li("Verifique se existem dados cadastrados para este processo"),
+                html.Li("Aguarde o carregamento dos dados da API (pode levar alguns segundos)"),
+                html.Li("Entre em contato com a equipe se o problema persistir")
+            ], style={"textAlign": "left", "maxWidth": "400px", "margin": "0 auto"})
+        ]),
+        html.Button(
+            "🔄 Tentar Novamente",
+            id="retry-btn",
+            style={
+                "marginTop": "20px",
+                "padding": "10px 20px",
+                "backgroundColor": "#17a2b8",
+                "color": "white",
+                "border": "none",
+                "borderRadius": "5px",
+                "cursor": "pointer"
+            }
+        )
     ], style={
         "textAlign": "center",
-        "padding": "60px 20px",
-        "backgroundColor": "#fff3cd",
+        "padding": "40px 20px",
+        "backgroundColor": "#d1ecf1",
         "borderRadius": "8px",
-        "border": "1px solid #ffeeba"
+        "border": "1px solid #bee5eb",
+        "maxWidth": "600px",
+        "margin": "20px auto"
     })
 
 def create_data_status_component(status):
