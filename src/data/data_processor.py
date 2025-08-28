@@ -30,9 +30,10 @@ class DataProcessor:
             if not filtered_data:
                 print("📥 Carregando dados diretamente da API...")
                 from data.lime_api import LimeSurveyAPI
+                from config.settings import Config
                 api = LimeSurveyAPI()
                 
-                if api.configured:
+                if Config.is_configured():
                     all_data = api.get_all_survey_data(processo_numero)
                     if all_data:
                         filtered_data = all_data
