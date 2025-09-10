@@ -1,5 +1,0 @@
-# Versão mínima das dependências
-dash
-pandas
-requests
-python-dotenv

@@ -6,6 +6,7 @@ import pandas as pd
 import re
 from typing import List, Dict, Any
 from config.settings import Config
+from datetime import datetime
 
 class ProcessoValidator:
     def __init__(self):
@@ -55,6 +56,12 @@ class ProcessoValidator:
 
         # Verificar cronologia entre marcos processuais
         erros.extend(self._validate_cronologia_datas(df))
+        erros.extend(self._validate_cronologia_datas2(df))
+        erros.extend(self._validate_cronologia_datas3(df))
+        erros.extend(self._validate_cronologia_datas4(df))
+
+        # Verificar formatos inválidos de datas nos marcos processuais (validação de formatos)
+        erros.extend(self._validate_datas_invalidas_1(df))
 
         # Verificar tempo MAIOR QUE UM ANO entre crime e flagrante
         erros.extend(self._validate_tempo_crime_flagrante(df))
@@ -63,6 +70,7 @@ class ProcessoValidator:
         erros.extend(self._validate_campos_obrigatorios(df))
         
         return erros
+
     
     def _validate_numero_controle(self, df: pd.DataFrame) -> List[Dict[str, Any]]:
         """
@@ -509,9 +517,7 @@ class ProcessoValidator:
         Valida a ordem cronológica entre todas as combinações de datas processuais preenchidas.
         Verifica se os marcos processuais estão em ordem temporal correta.
         """
-        erros = []
-        
-        # Definir os marcos processuais em ordem cronológica esperada (nome amigável: nome da coluna)
+        # Definir marcos padrão e delegar para função genérica
         marcos_processuais = {
         'Data do Crime': 'P1Q1. Qual a data do crime?',
         'Data abertura IP': 'P3Q1. Data da abertura do Inquérito Policial:',
@@ -530,18 +536,129 @@ class ProcessoValidator:
         'Data do trânsito em julgado': 'P9Q1. Data do trânsito em julgado da sentença:',
         'Data do arquivamento definitivo': 'P9Q2. Data do arquivamento definitivo do processo:'
         }
-        
+
+        return self._validate_cronologia(df, marcos_processuais)
+    
+    def _validate_cronologia_datas2(self, df: pd.DataFrame) -> List[Dict[str, Any]]:
+        """
+        Valida a ordem cronológica entre todas as combinações de datas processuais preenchidas.
+        Verifica se os marcos processuais estão em ordem temporal correta.
+        """
+        # Definir marcos padrão e delegar para função genérica
+        marcos_processuais = {
+            'Data do Crime': 'P1Q1. Qual a data do crime?',
+            'Data do Flagrante': 'P1Q2. Data da prisão em flagrante:',
+            'Data da Decisão do Flagrante':'P2Q5. Qual a data da decisão/despacho do juiz a respeito do flagrante (na audiência de custódia ou nos autos)?',
+        }
+
+        return self._validate_cronologia(df, marcos_processuais)
+    
+    def _validate_cronologia_datas3(self, df: pd.DataFrame) -> List[Dict[str, Any]]:
+        """
+        Valida a ordem cronológica entre todas as combinações de datas processuais preenchidas.
+        Verifica se os marcos processuais estão em ordem temporal correta.
+        """
+        # Definir marcos padrão e delegar para função genérica
+        marcos_processuais = {
+            'Data abertura IP': 'P3Q1. Data da abertura do Inquérito Policial:',
+            'Data Relatório Final IP': 'P3Q28. Data do relatório final do Inquérito Policial:',
+            'Data do Recebimento da Denúncia': 'P6Q0. Qual a data em que a denúncia foi recebida?',
+            'Data das alegações finais da acusação': 'P6Q8. Data das alegações finais da acusação:',
+            'Data das alegações finais da defesa': 'P6Q13. Data das alegações finais da defesa:',
+        }
+        return self._validate_cronologia(df, marcos_processuais)
+    
+    def _validate_cronologia_datas4(self, df: pd.DataFrame) -> List[Dict[str, Any]]:
+        """
+        Valida a ordem cronológica entre todas as combinações de datas processuais preenchidas.
+        Verifica se os marcos processuais estão em ordem temporal correta.
+        """
+        # Definir marcos padrão e delegar para função genérica
+        marcos_processuais = {
+            'Data do pedido de arquivamento': 'P4Q1. Data do pedido de arquivamento:',
+            'Data da decisão após o pedido de arquivamento': 'P4Q3. Data da decisão/despacho do juiz após o pedido de arquivamento:',
+        }
+        return self._validate_cronologia(df, marcos_processuais)
+    
+    def _validate_datas_invalidas_1(self, df: pd.DataFrame) -> List[Dict[str, Any]]:
+        marcos_processuais = {
+            'Data do Crime': 'P1Q1. Qual a data do crime?',
+            'Data do Flagrante': 'P1Q2. Data da prisão em flagrante:',
+            'Data da Decisão do Flagrante':'P2Q5. Qual a data da decisão/despacho do juiz a respeito do flagrante (na audiência de custódia ou nos autos)?',
+            'Data da audiência de custódia': 'P2Q1. Data da audiência de custódia:',
+            'Data abertura IP': 'P3Q1. Data da abertura do Inquérito Policial:',
+            'Data Relatório Final IP': 'P3Q28. Data do relatório final do Inquérito Policial:',
+            'Data do Pedido de Arquivamento': 'P4Q1. Data do pedido de arquivamento:',
+            'Data da Decisão após pedido de Arquivamento': 'P4Q3. Data da decisão/despacho do juiz após o pedido de arquivamento:',
+            'Data oferecimento da Denúncia': 'P4Q7. Data do oferecimento da denúncia:',
+            'Data decisão imediatamente após Denúncia': 'P4Q14. Qual a data da decisão/despacho do juiz imediatamente após a denúncia?',
+            'Data do Recebimento da Denúncia': 'P6Q0. Qual a data em que a denúncia foi recebida?',
+            'Data da Citação do Réu':'P5Q2. Qual a data da citação do réu?',
+            'Data da RA': 'P5Q5. Qual a data da defesa prévia/resposta à acusação?',
+            'Data da decisão após RA': 'P5Q10. Data da decisão/despacho do juiz quanto à denúncia após a defesa prévia/resposta à acusação:',
+            'Data 1a AIJ': 'P6Q1. Data da primeira audiência de instrução realizada:',
+            'Data última AIJ': 'P6Q3. Se sim, qual a data da última audiência de instrução realizada?',
+            'Data das alegações finais da acusação': 'P6Q8. Data das alegações finais da acusação:',
+            'Data das alegações finais da defesa': 'P6Q13. Data das alegações finais da defesa:',
+            'Data Aditamento': 'P6Q22. Qual a data do último aditamento:',
+            'Data decisão 1a fase do Juri': 'P7Q2. Data da decisão que finaliza a primeira fase do Júri:',
+            'Data nova decisão da 1a Fase': 'P7Q31. Data da nova decisão de primeira fase',
+            'Data agendamento audiência Juri': 'P8Q0. Primeira data de agendamento da audiência de júri:',
+            'Data realização audiência Júri': 'P8Q4. Data em que a audiência de júri foi realizada:',
+            'Data prolação sentença de júri': 'P8Q20. Data em que a sentença de júri foi prolatada:',
+            'Data nova decisão de 2a fase': 'P8Q57. Qual a data da nova decisão de segunda fase?',
+            'Data do trânsito em julgado': 'P9Q1. Data do trânsito em julgado da sentença:',
+            'Data do arquivamento definitivo': 'P9Q2. Data do arquivamento definitivo do processo:'
+        }
+        # validar_datas_marcos_log retorna um DataFrame com colunas no formato padrão
+        log_df = self.validar_datas_marcos_log(df, marcos_processuais, log_df=None)
+
+        if log_df is None or log_df.empty:
+            return []
+
+        # Converter DataFrame de log para lista de dicionários no formato que validate() espera
+        registros = []
+        for _, row in log_df.iterrows():
+            registro = {
+                'Formulário': row.get('Formulário', ''),
+                'ID da Resposta': row.get('ID da Resposta', ''),
+                'Nº Processo': row.get('Nº Processo', ''),
+                'Nº de Controle': row.get('Nº de Controle', ''),
+                'Bolsista': row.get('Bolsista', ''),
+                'Campo': row.get('Campo', ''),
+                'Tipo de Erro': row.get('Tipo de Erro', ''),
+                'Valor Encontrado': row.get('Valor Encontrado', ''),
+                'Regra Violada / Esperado': row.get('Regra Violada / Esperado', ''),
+                'Categoria': 'processo'
+            }
+            registros.append(registro)
+
+        return registros
+
+    def _validate_cronologia(self, df: pd.DataFrame, marcos_processuais: Dict[str, str]) -> List[Dict[str, Any]]:
+        """
+        Validação genérica de cronologia entre um conjunto arbitrário de marcos processuais.
+
+        Args:
+            df: DataFrame com as respostas
+            marcos_processuais: dict onde chave = nome amigável do marco, valor = nome da coluna no DataFrame
+
+        Retorna:
+            lista de erros no mesmo formato que as demais validações
+        """
+        erros = []
+
         # Converter todas as datas para datetime
         df_temp = df.copy()
         colunas_datas = list(marcos_processuais.values())
-        
+
         for col in colunas_datas:
             if col in df_temp.columns:
                 df_temp[col] = pd.to_datetime(df_temp[col], errors='coerce', dayfirst=True)
-        
+
         # Criar mapeamento inverso (coluna -> nome amigável)
         coluna_para_nome = {v: k for k, v in marcos_processuais.items()}
-        
+
         # Processar cada linha individualmente
         for _, row in df_temp.iterrows():
             # Identificar quais datas estão preenchidas nesta linha
@@ -549,22 +666,22 @@ class ProcessoValidator:
             for i, col in enumerate(colunas_datas):
                 if col in df_temp.columns and pd.notna(row[col]):
                     datas_preenchidas.append((i, col, row[col]))
-            
+
             # Se há menos de 2 datas preenchidas, não há o que comparar
             if len(datas_preenchidas) < 2:
                 continue
-            
+
             # Verificar todas as combinações de datas preenchidas
             for i in range(len(datas_preenchidas)):
                 for j in range(i + 1, len(datas_preenchidas)):
                     idx_anterior, col_anterior, data_anterior = datas_preenchidas[i]
                     idx_posterior, col_posterior, data_posterior = datas_preenchidas[j]
-                    
+
                     # Verificar se a ordem cronológica está incorreta
                     if data_posterior < data_anterior:
-                        nome_anterior = coluna_para_nome[col_anterior]
-                        nome_posterior = coluna_para_nome[col_posterior]
-                        
+                        nome_anterior = coluna_para_nome.get(col_anterior, col_anterior)
+                        nome_posterior = coluna_para_nome.get(col_posterior, col_posterior)
+
                         # Criar entrada de erro
                         erro = {
                             'Formulário': f"Processo {row.get('form_origem', 'N/A')}",
@@ -579,8 +696,9 @@ class ProcessoValidator:
                             'Categoria': 'processo'
                         }
                         erros.append(erro)
-        
+
         return erros
+
     
     def _validate_tempo_crime_flagrante(self, df: pd.DataFrame) -> List[Dict[str, Any]]:
         """
@@ -633,6 +751,41 @@ class ProcessoValidator:
             erros.append(erro)
         
         return erros
+
+    def _validate_datas_invalidas_1(self, df: pd.DataFrame) -> List[Dict[str, Any]]:
+       
+        marcos_processuais = {
+            'Data do Crime': 'P1Q1. Qual a data do crime?',
+            'Data do Flagrante': 'P1Q2. Data da prisão em flagrante:',
+            'Data da Decisão do Flagrante':'P2Q5. Qual a data da decisão/despacho do juiz a respeito do flagrante (na audiência de custódia ou nos autos)?',
+            'Data da audiência de custódia': 'P2Q1. Data da audiência de custódia:',
+            'Data abertura IP': 'P3Q1. Data da abertura do Inquérito Policial:',
+            'Data Relatório Final IP': 'P3Q28. Data do relatório final do Inquérito Policial:',
+            'Data do Pedido de Arquivamento': 'P4Q1. Data do pedido de arquivamento:',
+            'Data da Decisão após pedido de Arquivamento': 'P4Q3. Data da decisão/despacho do juiz após o pedido de arquivamento:',
+            'Data oferecimento da Denúncia': 'P4Q7. Data do oferecimento da denúncia:',
+            'Data decisão imediatamente após Denúncia': 'P4Q14. Qual a data da decisão/despacho do juiz imediatamente após a denúncia?',
+            'Data do Recebimento da Denúncia': 'P6Q0. Qual a data em que a denúncia foi recebida?',
+            'Data da Citação do Réu':'P5Q2. Qual a data da citação do réu?',
+            'Data da RA': 'P5Q5. Qual a data da defesa prévia/resposta à acusação?',
+            'Data da decisão após RA': 'P5Q10. Data da decisão/despacho do juiz quanto à denúncia após a defesa prévia/resposta à acusação:',
+            'Data 1a AIJ': 'P6Q1. Data da primeira audiência de instrução realizada:',
+            'Data última AIJ': 'P6Q3. Se sim, qual a data da última audiência de instrução realizada?',
+            'Data das alegações finais da acusação': 'P6Q8. Data das alegações finais da acusação:',
+            'Data das alegações finais da defesa': 'P6Q13. Data das alegações finais da defesa:',
+            'Data Aditamento': 'P6Q22. Qual a data do último aditamento:',
+            'Data decisão 1a fase do Juri': 'P7Q2. Data da decisão que finaliza a primeira fase do Júri:',
+            'Data nova decisão da 1a Fase': 'P7Q31. Data da nova decisão de primeira fase',
+            'Data agendamento audiência Juri': 'P8Q0. Primeira data de agendamento da audiência de júri:',
+            'Data realização audiência Júri': 'P8Q4. Data em que a audiência de júri foi realizada:',
+            'Data prolação sentença de júri': 'P8Q20. Data em que a sentença de júri foi prolatada:',
+            'Data nova decisão de 2a fase': 'P8Q57. Qual a data da nova decisão de segunda fase?',
+            'Data do trânsito em julgado': 'P9Q1. Data do trânsito em julgado da sentença:',
+            'Data do arquivamento definitivo': 'P9Q2. Data do arquivamento definitivo do processo:'
+        }
+
+        return self.validar_datas_marcos_log(df, marcos_processuais)
+
 
     def _validate_campos_obrigatorios(self, df: pd.DataFrame) -> List[Dict[str, Any]]:
         """
