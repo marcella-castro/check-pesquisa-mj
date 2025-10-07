@@ -7,6 +7,14 @@ import time
 from data.lime_api import LimeSurveyAPI
 from utils.data_cache import DataCache
 import pandas as pd
+import re
+
+
+def _normalize_processo(s: str) -> str:
+    """Normaliza um número de processo removendo pontuação e espaços e lowercasing."""
+    if s is None:
+        return ''
+    return re.sub(r'[^0-9a-z]', '', str(s).lower())
 
 class DataLoaderService:
     """Serviço para carregar dados dos formulários em background"""
@@ -128,7 +136,7 @@ class DataLoaderService:
             Dicionário com dados filtrados por categoria
         """
         all_data = self.cache.get_data()
-        
+
         if not all_data:
             return {}
         
@@ -141,6 +149,15 @@ class DataLoaderService:
         }
         
         filtered_data = {}
+        # Normalizar chave do processo para buscas tolerantes
+        key_norm = _normalize_processo(processo_numero)
+
+        # Consultar cache rápido por processo
+        cached = self.cache.get_process_cache(key_norm)
+        if cached is not None:
+            print('🔁 Resultado obtido do cache por processo')
+            return cached
+
         lista_processos = [processo_numero]  # Para usar com .isin()
         
         for categoria, df in all_data.items():
@@ -164,11 +181,18 @@ class DataLoaderService:
                 
                 if processo_cols:
                     col_found = processo_cols[0]
-                    filtered_df = df[df[col_found].astype(str).str.contains(str(processo_numero), na=False, case=False)]
-                    
-                    if not filtered_df.empty:
+                    # fazer busca tolerante: normalizar valores e comparar
+                    matches = []
+                    for idx, val in df[col_found].astype(str).items():
+                        if key_norm in _normalize_processo(val):
+                            matches.append(idx)
+                    if matches:
+                        filtered_df = df.loc[matches]
                         filtered_data[categoria] = filtered_df
                         print(f"✅ {categoria}: {len(filtered_df)} respostas encontradas (busca genérica)")
+
+        # armazenar resultado por processo em cache curto
+        self.cache.set_process_cache(key_norm, filtered_data)
         
         return filtered_data
 

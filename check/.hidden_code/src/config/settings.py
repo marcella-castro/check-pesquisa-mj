@@ -48,7 +48,7 @@ class Config:
     PORT = int(os.getenv('PORT', 8050))
     
     # Configurações de cache
-    CACHE_TIMEOUT = int(os.getenv('CACHE_TIMEOUT', 300))  # 5 minutos
+    CACHE_TIMEOUT = int(os.getenv('CACHE_TIMEOUT', 600))  # 10 minutos
     
     # Configurações de validação
     CAMPOS_OBRIGATORIOS = [
