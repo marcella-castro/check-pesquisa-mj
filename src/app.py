@@ -6,7 +6,7 @@ import dash
 from dash import html, dcc
 from layouts.main_layout import create_main_layout
 from callbacks.main_callbacks import register_callbacks
-from utils.data_service import data_service
+from utils.data_service_optimized import data_service
 
 # Inicializar a aplicação Dash
 app = dash.Dash(

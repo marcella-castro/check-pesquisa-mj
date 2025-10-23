@@ -30,6 +30,10 @@ class LimeSurveyAPI:
         
     def limesurvey_api_request(self, method: str, params: List, session_key: Optional[str] = None, id_: int = 1) -> Dict:
         """Faz requisição para a API do LimeSurvey"""
+        if not self.api_url:
+            print("❌ URL da API do LimeSurvey não configurada")
+            return {'error': 'URL da API não configurada'}
+            
         headers = {'Content-Type': 'application/json'}
         payload = {'method': method, 'params': params, 'id': id_}
         
@@ -37,10 +41,25 @@ class LimeSurveyAPI:
             payload['params'].insert(0, session_key)
             
         try:
+            print(f"📡 Enviando requisição para {self.api_url}")
+            print(f"📦 Payload: {json.dumps(payload)}")
+            
             response = requests.post(self.api_url, data=json.dumps(payload), headers=headers)
+            
+            print(f"📥 Status code: {response.status_code}")
+            print(f"📄 Resposta: {response.text[:200]}...")  # Mostrar primeiros 200 caracteres
+            
+            if response.status_code != 200:
+                print(f"❌ Erro HTTP: {response.status_code}")
+                return {'error': f'HTTP Error: {response.status_code}'}
+                
             return response.json()
+        except json.JSONDecodeError as e:
+            print(f"❌ Erro ao decodificar JSON: {e}")
+            print(f"📄 Resposta recebida: {response.text}")
+            return {'error': f'JSON Decode Error: {str(e)}'}
         except Exception as e:
-            print(f"Erro na requisição API: {e}")
+            print(f"❌ Erro na requisição API: {e}")
             return {'error': str(e)}
         
     def get_session_key(self) -> Optional[str]:
