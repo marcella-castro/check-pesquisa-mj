@@ -41,14 +41,14 @@ class LimeSurveyAPI:
             payload['params'].insert(0, session_key)
             
         try:
-            print(f"📡 Enviando requisição para {self.api_url}")
-            print(f"📦 Payload: {json.dumps(payload)}")
+            #print(f"📡 Enviando requisição para {self.api_url}")
+            #print(f"📦 Payload: {json.dumps(payload)}")
             
             response = requests.post(self.api_url, data=json.dumps(payload), headers=headers)
-            
-            print(f"📥 Status code: {response.status_code}")
-            print(f"📄 Resposta: {response.text[:200]}...")  # Mostrar primeiros 200 caracteres
-            
+
+            #print(f"📥 Status code: {response.status_code}")
+            #print(f"📄 Resposta: {response.text[:200]}...")  # Mostrar primeiros 200 caracteres
+
             if response.status_code != 200:
                 print(f"❌ Erro HTTP: {response.status_code}")
                 return {'error': f'HTTP Error: {response.status_code}'}
