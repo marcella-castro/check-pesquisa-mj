@@ -7,6 +7,7 @@ from dash import html, dcc
 from layouts.main_layout import create_main_layout
 from callbacks.main_callbacks import register_callbacks
 from utils.data_service_optimized import data_service
+from config.settings import Config
 
 # Inicializar a aplicação Dash
 app = dash.Dash(
@@ -31,4 +32,5 @@ app.layout = create_main_layout()
 register_callbacks(app)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8050)
+    # Usar configurações do ambiente (útil em deploy)
+    app.run(debug=Config.DEBUG, host=Config.HOST, port=Config.PORT)
