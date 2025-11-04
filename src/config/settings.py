@@ -23,7 +23,8 @@ class Config:
     }
     
     # Configurações da aplicação
-    DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
+    # Por segurança, DEBUG deve ser False por padrão em ambientes de produção
+    DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
     HOST = os.getenv('HOST', '0.0.0.0')
     PORT = int(os.getenv('PORT', 8050))
     
