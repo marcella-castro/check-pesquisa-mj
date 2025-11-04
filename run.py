@@ -27,12 +27,17 @@ except ImportError as e:
     print("   pip install -r requirements.txt")
     sys.exit(1)
 
-# Verificar se arquivo .env existe
-env_file = current_dir / ".env"
-if not env_file.exists():
-    print("⚠️  Arquivo .env não encontrado")
-    print("   Copie o arquivo .env.example para .env e configure as variáveis")
-    print()
+# Verificar se as variáveis essenciais estão definidas no ambiente
+essential_vars = ["LIME_API_URL", "LIME_USERNAME", "LIME_PASSWORD"]
+missing = [v for v in essential_vars if not os.getenv(v)]
+if missing:
+    # Se o provider de deploy (ex: DigitalOcean/Oceangate) já injeta variáveis
+    # no ambiente, não precisamos do arquivo .env. Avisamos somente se nenhuma
+    # das variáveis essenciais estiver presente.
+    if not any(os.getenv(v) for v in essential_vars):
+        print("⚠️  Arquivo .env não encontrado e variáveis essenciais não estão definidas no ambiente")
+        print("   Copie o arquivo .env.example para .env e configure as variáveis ou configure os secrets no provedor de deploy")
+        print()
 
 if __name__ == "__main__":
     try:

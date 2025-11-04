@@ -33,4 +33,5 @@ register_callbacks(app)
 
 if __name__ == '__main__':
     # Usar configurações do ambiente (útil em deploy)
-    app.run(debug=Config.DEBUG, host=Config.HOST, port=Config.PORT)
+    # Desabilitar o reloader em produção para evitar forks e exit codes inesperados
+    app.run(debug=Config.DEBUG, host=Config.HOST, port=Config.PORT, use_reloader=False)
