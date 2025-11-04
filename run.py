@@ -49,7 +49,9 @@ if __name__ == "__main__":
         print("   Pressione Ctrl+C para parar")
         print()
         
-        app.run(debug=True, host='0.0.0.0', port=8050)
+        # Usar configurações do ambiente definidas em Config
+        from config.settings import Config
+        app.run(debug=Config.DEBUG, host=Config.HOST, port=Config.PORT)
         
     except KeyboardInterrupt:
         print("\n👋 Aplicação encerrada pelo usuário")

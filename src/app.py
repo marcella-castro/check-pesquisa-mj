@@ -32,6 +32,5 @@ app.layout = create_main_layout()
 register_callbacks(app)
 
 if __name__ == '__main__':
-    # Usar configurações do ambiente (útil em deploy)
-    # Desabilitar o reloader em produção para evitar forks e exit codes inesperados
-    app.run(debug=Config.DEBUG, host=Config.HOST, port=Config.PORT, use_reloader=False)
+    # Usar configurações do ambiente definidas em Config
+    app.run(debug=Config.DEBUG, host=Config.HOST, port=Config.PORT)
