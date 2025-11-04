@@ -39,7 +39,7 @@ class LimeSurveyAPI:
         ###
         if session_key:
             payload['params'].insert(0, session_key)
-            
+            ###
         try:
             #print(f"📡 Enviando requisição para {self.api_url}")
             #print(f"📦 Payload: {json.dumps(payload)}")
