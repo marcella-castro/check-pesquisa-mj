@@ -5,15 +5,18 @@ Serviço para carregamento de dados em background - Versão Otimizada
 import threading
 import time
 from data.lime_api import LimeSurveyAPI
-from utils.data_cache import DataCache
+from utils.persistent_data_cache import PersistentDataCache
 import pandas as pd
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DataLoaderService:
-    """Serviço para carregar dados dos formulários em background"""
+    """Serviço para carregar dados dos formulários em background com cache persistente"""
     
     def __init__(self):
-        self.cache = DataCache()
+        self.cache = PersistentDataCache()  # Usando o novo cache persistente
         self.lime_api = LimeSurveyAPI()
         self.loading_thread = None
         self.max_workers = 4  # Limite de workers paralelos

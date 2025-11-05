@@ -151,6 +151,7 @@ Desktop.ini
 # Cache folders
 cache/
 .cache/
+data_cache/
 
 # Data files (pode ajustar conforme necessário)
 data/*.csv
