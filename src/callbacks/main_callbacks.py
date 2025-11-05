@@ -282,18 +282,19 @@ def create_data_status_component(status):
     if status.get('error'):
         return create_data_status_error(status['error'])
     
+    # Se temos dados e não está carregando, mostrar sucesso
+    if status.get('has_data') and not status.get('is_loading'):
+        return create_data_status_success(status)
+    
+    # Se está carregando, mostrar loading
     if status.get('is_loading'):
         return create_data_status_loading()
     
-    # Se temos dados no cache e total de respostas maior que 0
-    if status.get('total_respostas', 0) > 0:
-        return create_data_status_success(status)
-    
-    # Se o cache está válido mas vazio, mostrar mensagem de aguardando
+    # Se não tem dados mas o cache é válido, mostrar aguardando
     if status.get('is_valid'):
         return create_data_status_waiting()
     
-    # Se não temos dados e o cache não está válido, mostrar loading
+    # Em outros casos, mostrar loading
     return create_data_status_loading()
 
 def create_data_status_loading():
@@ -317,34 +318,53 @@ def create_data_status_loading():
 
 def create_data_status_success(status):
     """Cria status de sucesso"""
-    # Se não há dados, retornar status de aguardando
-    if not status.get('data') and not status.get('total_respostas', 0):
-        return create_data_status_waiting()
-    
     categorias_text = []
     for categoria, count in status.get('categorias', {}).items():
-        categorias_text.append(f"{categoria.title()}: {count}")
+        if count > 0:  # Só mostrar categorias com dados
+            categorias_text.append(f"{categoria.title()}: {count}")
     
     last_update = status.get('last_update')
-    update_text = ""
+    next_update = None
+    
     if last_update:
         try:
-            update_time = datetime.fromisoformat(str(last_update).replace('Z', '+00:00'))
-            update_text = f" (última atualização: {update_time.strftime('%H:%M:%S')})"
-        except:
-            update_text = f" (última atualização: {last_update})"
+            # Converter para datetime se for string
+            if isinstance(last_update, str):
+                last_update = datetime.fromisoformat(last_update.replace('Z', '+00:00'))
+            
+            # Calcular próxima atualização (12 horas depois)
+            next_update = last_update + timedelta(hours=12)
+            
+            # Formatar textos de atualização
+            update_text = f"Última atualização: {last_update.strftime('%H:%M:%S')}"
+            next_update_text = f"Próxima atualização: {next_update.strftime('%H:%M:%S')}"
+        except Exception:
+            update_text = f"Última atualização: {last_update}"
+            next_update_text = "Próxima atualização: em 12 horas"
     
     return html.Div([
         html.Div([
+            # Ícone e título
             html.I(className="fas fa-check-circle", 
-                   style={"fontSize": "18px", "marginRight": "10px", "color": "#28a745"}),
-            html.Span([
-                f"Dados carregados com sucesso! Total: {status.get('total_respostas', 0)} respostas",
-                update_text
-            ], style={"color": "#155724", "fontWeight": "500"}),
-            html.Br(),
-            html.Small(" | ".join(categorias_text), 
-                      style={"color": "#6c757d", "fontSize": "12px"})
+                   style={"fontSize": "24px", "marginRight": "10px", "color": "#28a745"}),
+            html.Span(f"Dados carregados com sucesso!", 
+                     style={"color": "#155724", "fontWeight": "bold", "fontSize": "18px"}),
+            
+            # Informações principais
+            html.Div([
+                html.Span(f"Total: {status.get('total_respostas', 0)} respostas", 
+                         style={"fontWeight": "500"}),
+                html.Br(),
+                html.Span(update_text),
+                html.Br(),
+                html.Span(next_update_text, style={"color": "#666"})
+            ], style={"marginTop": "10px"}),
+            
+            # Detalhes por categoria
+            html.Div(
+                [html.Span(text, style={"marginRight": "15px"}) for text in categorias_text],
+                style={"marginTop": "5px", "color": "#6c757d", "fontSize": "14px"}
+            )
         ])
     ], style={
         "backgroundColor": "#d4edda",

@@ -60,8 +60,9 @@ def create_main_layout():
         # Interval para atualizar status
         dcc.Interval(
             id='status-interval',
-            interval=2000,  # Atualiza a cada 2 segundos
-            n_intervals=0
+            interval=1000,  # Atualiza a cada 1 segundo
+            n_intervals=0,
+            max_intervals=-1  # Continua indefinidamente
         )
         
     ], style={

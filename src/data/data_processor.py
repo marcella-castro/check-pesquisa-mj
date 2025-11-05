@@ -5,7 +5,8 @@ Módulo para processamento e limpeza dos dados
 import pandas as pd
 import numpy as np
 from typing import Dict, List, Tuple
-from utils.data_service import data_service
+from utils.data_service_optimized import data_service  # Usar o serviço otimizado
+from utils.persistent_data_cache import PersistentDataCache  # Importar cache persistente
 
 class DataProcessor:
     def __init__(self):
@@ -43,24 +44,32 @@ class DataProcessor:
         Returns:
             Dicionário com status do carregamento
         """
-        cache_info = data_service.get_cached_data()
+        # Obter cache diretamente
+        cache = PersistentDataCache()
+        cached_data = cache.get_data()
         
         total_respostas = 0
         categorias_info = {}
         
-        if cache_info['data']:
-            for categoria, df in cache_info['data'].items():
-                count = len(df) if not df.empty else 0
+        # Contar respostas em cada categoria
+        if cached_data:
+            for categoria, df in cached_data.items():
+                if isinstance(df, list):
+                    # Se for lista de DataFrames, somar o total
+                    count = sum(len(d) for d in df if not d.empty)
+                else:
+                    count = len(df) if not df.empty else 0
                 categorias_info[categoria] = count
                 total_respostas += count
         
         return {
-            'is_loading': cache_info['is_loading'],
-            'last_update': cache_info['last_update'],
-            'error': cache_info['error'],
-            'is_valid': cache_info['is_valid'],
+            'is_loading': cache.is_loading,
+            'last_update': cache.last_update,
+            'error': cache.load_error,
+            'is_valid': cache.is_cache_valid(),
             'total_respostas': total_respostas,
-            'categorias': categorias_info
+            'categorias': categorias_info,
+            'has_data': total_respostas > 0
         }
     
     def clean_data(self, df: pd.DataFrame) -> pd.DataFrame:
