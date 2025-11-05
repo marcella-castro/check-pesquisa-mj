@@ -109,6 +109,10 @@ def register_callbacks(app):
             data_processor = DataProcessor()
             status = data_processor.get_cache_status()
             
+            # Adicionar dados do cache ao status para verificação
+            cached_data = data_processor.get_processo_data("")  # Busca todos os dados
+            status['data'] = cached_data
+            
             return create_data_status_component(status)
             
         except Exception as e:
@@ -281,10 +285,16 @@ def create_data_status_component(status):
     if status.get('is_loading'):
         return create_data_status_loading()
     
-    if status.get('is_valid') and status.get('total_respostas', 0) > 0:
+    # Se temos dados no cache e total de respostas maior que 0
+    if status.get('total_respostas', 0) > 0:
         return create_data_status_success(status)
     
-    return create_data_status_waiting()
+    # Se o cache está válido mas vazio, mostrar mensagem de aguardando
+    if status.get('is_valid'):
+        return create_data_status_waiting()
+    
+    # Se não temos dados e o cache não está válido, mostrar loading
+    return create_data_status_loading()
 
 def create_data_status_loading():
     """Cria status de carregamento"""
@@ -307,6 +317,10 @@ def create_data_status_loading():
 
 def create_data_status_success(status):
     """Cria status de sucesso"""
+    # Se não há dados, retornar status de aguardando
+    if not status.get('data') and not status.get('total_respostas', 0):
+        return create_data_status_waiting()
+    
     categorias_text = []
     for categoria, count in status.get('categorias', {}).items():
         categorias_text.append(f"{categoria.title()}: {count}")
@@ -315,7 +329,7 @@ def create_data_status_success(status):
     update_text = ""
     if last_update:
         try:
-            update_time = datetime.fromisoformat(last_update.replace('Z', '+00:00'))
+            update_time = datetime.fromisoformat(str(last_update).replace('Z', '+00:00'))
             update_text = f" (última atualização: {update_time.strftime('%H:%M:%S')})"
         except:
             update_text = f" (última atualização: {last_update})"
