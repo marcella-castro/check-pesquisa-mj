@@ -4,10 +4,16 @@ Aplicação Dash para verificação de erros em pesquisa MJ
 
 import dash
 from dash import html, dcc
+import logging
 from layouts.main_layout import create_main_layout
 from callbacks.main_callbacks import register_callbacks
 from utils.data_service_optimized import data_service
 from config.settings import Config
+
+# Configurar logging em produção apenas para warnings e erros
+if not Config.DEBUG:
+    logging.getLogger('werkzeug').setLevel(logging.WARNING)
+    logging.getLogger('dash').setLevel(logging.WARNING)
 
 # Inicializar a aplicação Dash
 app = dash.Dash(
