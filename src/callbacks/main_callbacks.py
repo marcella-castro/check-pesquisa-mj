@@ -9,7 +9,8 @@ from validation.conjunto_validator import ConjuntoValidator
 from components.process_summary import create_process_summary
 from components.error_report import create_error_report
 from utils.formatters import formatar_cnj
-from datetime import datetime
+from datetime import datetime, timedelta
+from utils.data_service_optimized import data_service
 
 def register_callbacks(app):
     """
@@ -108,11 +109,17 @@ def register_callbacks(app):
         try:
             data_processor = DataProcessor()
             status = data_processor.get_cache_status()
-            
-            # Adicionar dados do cache ao status para verificação
-            cached_data = data_processor.get_processo_data("")  # Busca todos os dados
-            status['data'] = cached_data
-            
+
+            # Se o cache expirou e não está carregando, iniciar reload em background
+            if not status.get('is_valid') and not status.get('is_loading'):
+                try:
+                    data_service.start_background_loading()
+                    # Refletir novo estado imediatamente
+                    status['is_loading'] = True
+                except Exception as e:
+                    # Se falhar ao iniciar reload, registrar e mostrar erro no status
+                    return create_data_status_error(f"Falha ao iniciar recarregamento: {e}")
+
             return create_data_status_component(status)
             
         except Exception as e:
