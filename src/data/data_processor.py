@@ -17,7 +17,6 @@ class DataProcessor:
         """
         Obtém todos os dados relacionados a um número de processo específico
         
-        
         Args:
             processo_numero: Número do processo a ser pesquisado
             
