@@ -36,10 +36,9 @@ class LimeSurveyAPI:
             
         headers = {'Content-Type': 'application/json'}
         payload = {'method': method, 'params': params, 'id': id_}
-        ###
-        if session_key:        git ls-files | grep -E '^\.env$' || echo ".env not tracked"
+        # Inserir session_key nos params quando fornecida
+        if session_key:
             payload['params'].insert(0, session_key)
-            ###
         try:
             #print(f"📡 Enviando requisição para {self.api_url}")
             #print(f"📦 Payload: {json.dumps(payload)}")
