@@ -37,7 +37,7 @@ class LimeSurveyAPI:
         headers = {'Content-Type': 'application/json'}
         payload = {'method': method, 'params': params, 'id': id_}
         ###
-        if session_key:
+        if session_key:        git ls-files | grep -E '^\.env$' || echo ".env not tracked"
             payload['params'].insert(0, session_key)
             ###
         try:
