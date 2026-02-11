@@ -10,7 +10,7 @@ from config.settings import Config
 class ProcessoValidator:
     def __init__(self):
         # Padrões de validação
-        self.padrao_controle = re.compile(r'^\d{1,4}[RV]0[1-9]$')
+        self.padrao_controle = re.compile(r'^\d{1,5}[RV]0[1-9]$')
         self.padrao_processo = re.compile(r'^\d{7}-\d{2}\.\d{4}\.\d{1}\.\d{2}\.\d{4}$')
         
     def validate(self, df: pd.DataFrame) -> List[Dict[str, Any]]:
@@ -67,7 +67,7 @@ class ProcessoValidator:
     def _validate_numero_controle(self, df: pd.DataFrame) -> List[Dict[str, Any]]:
         """
         P0Q1. Número de controle (dado pela equipe) - Teste por padrão de resposta
-        Padrão esperado: até 4 dígitos + R/V + 0 + 1 dígito (ex: 123R01, 1V09)
+        Padrão esperado: 4 ou 5 dígitos + R/V + 0 + 1 dígito (ex: 123R01, 1V09)
         """
         erros = []
         coluna_controle = 'P0Q1. Número de controle (dado pela equipe)'
@@ -89,7 +89,7 @@ class ProcessoValidator:
                 'Campo': coluna_controle,
                 'Tipo de Erro': 'Formato Inválido',
                 'Valor Encontrado': row.get(coluna_controle, 'N/A'),
-                'Regra Violada / Esperado': 'Padrão: até 4 dígitos + [R/V] + 0 + 1 dígito (ex: 123R01, 45V09)',
+                'Regra Violada / Esperado': 'Padrão: 4 ou 5 dígitos + [R/V] + 0 + 1 dígito (ex: 123R01, 45V09)',
                 'Categoria': 'processo'
             }
             erros.append(erro)
@@ -400,7 +400,7 @@ class ProcessoValidator:
         if coluna_qtd_reus not in df.columns or coluna_controle not in df.columns:
             return erros
             
-        padrao_controle = re.compile(r'^\d{1,4}R\d{2}$')
+        padrao_controle = re.compile(r'^\d{1,5}R0[1-9]$')
         
         for _, row in df[df[coluna_qtd_reus].notna()].iterrows():
             try:
